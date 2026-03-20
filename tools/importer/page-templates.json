@@ -1,0 +1,74 @@
+{
+  "templates": [
+    {
+      "name": "blog-post",
+      "urls": [
+        "https://www.the-future-of-commerce.com/2025/05/08/how-sales-ai-helps-in-tough-markets/"
+      ],
+      "description": "Blog post page with hero image, author byline, publish date, body content, and related posts",
+      "blocks": [
+        {
+          "name": "hero",
+          "instances": [
+            ".post-single-header"
+          ]
+        },
+        {
+          "name": "author-card",
+          "instances": [
+            "aside.post-single-sidebar .post-single-author"
+          ]
+        },
+        {
+          "name": "social-share",
+          "instances": [
+            "section.post-single-share-aside"
+          ]
+        },
+        {
+          "name": "article-player",
+          "instances": [
+            "section.post-player"
+          ]
+        },
+        {
+          "name": "related-articles",
+          "instances": [
+            "article.simpe-post-embed"
+          ]
+        }
+      ],
+      "sections": [
+        {
+          "id": "section-hero",
+          "name": "Hero Image",
+          "selector": ".section.section--dark > .container",
+          "style": "dark",
+          "blocks": [
+            "hero"
+          ],
+          "defaultContent": []
+        },
+        {
+          "id": "section-article",
+          "name": "Article Content",
+          "selector": ".section > .container > main.post-single-main",
+          "style": null,
+          "blocks": [
+            "social-share",
+            "article-player",
+            "author-card",
+            "related-articles"
+          ],
+          "defaultContent": [
+            "h1.post-single-title",
+            ".post-single-content > p",
+            ".post-single-content > h2",
+            ".post-single-content > h3",
+            ".post-single-content > hr"
+          ]
+        }
+      ]
+    }
+  ]
+}

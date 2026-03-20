@@ -1,0 +1,24 @@
+.social-share {
+  padding: var(--spacing-s) 0;
+}
+
+.social-share .social-share-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  gap: var(--spacing-s);
+}
+
+.social-share .social-share-item a {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xxs);
+  color: var(--color-text-secondary, #475569);
+  text-decoration: none;
+  font-size: var(--font-size-s, 14px);
+}
+
+.social-share .social-share-item a:hover {
+  color: var(--color-link);
+}
