@@ -1,18 +1,25 @@
+/* author card — horizontal layout with circular avatar */
 .author-card {
-  padding: var(--spacing-m) 0;
+  padding: var(--spacing-l) 0;
+  border-top: 1px solid var(--border-color);
 }
 
 .author-card .author-card-content {
   display: flex;
   align-items: center;
-  gap: var(--spacing-s);
+  gap: var(--spacing-m);
+}
+
+.author-card .author-card-avatar {
+  flex-shrink: 0;
 }
 
 .author-card .author-card-avatar img {
-  width: 64px;
-  height: 64px;
+  width: 72px;
+  height: 72px;
   border-radius: 50%;
   object-fit: cover;
+  display: block;
 }
 
 .author-card .author-card-details {
@@ -23,16 +30,20 @@
 
 .author-card .author-card-name {
   margin: 0;
-  font-weight: var(--font-weight-bold, 700);
+  font-weight: 700;
+  font-size: var(--body-font-size-m);
 }
 
 .author-card a {
-  color: var(--color-text);
   text-decoration: none;
 }
 
 .author-card a:hover {
   text-decoration: underline;
+}
+
+.author-card .author-card-name a {
+  color: var(--text-color);
 }
 
 .author-card .author-card-social {
@@ -44,10 +55,6 @@
 }
 
 .author-card .author-card-social a {
-  color: var(--color-text-secondary, #475569);
-  font-size: var(--font-size-s, 14px);
-}
-
-.author-card .author-card-social a:hover {
-  color: var(--color-link);
+  color: var(--link-color);
+  font-size: var(--body-font-size-xs);
 }
