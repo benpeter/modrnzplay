@@ -96,6 +96,14 @@
           "defaultContent": []
         }
       ]
+    },
+    {
+      "name": "static-page",
+      "urls": [
+        "https://www.the-future-of-commerce.com/about/"
+      ],
+      "description": "Static informational page such as About, Contact, or other non-blog content pages",
+      "blocks": []
     }
   ]
 }
