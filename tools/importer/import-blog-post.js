@@ -11,6 +11,7 @@ import relatedArticlesParser from './parsers/related-articles.js';
 // TRANSFORMER IMPORTS
 import focCleanupTransformer from './transformers/foc-cleanup.js';
 import focSectionsTransformer from './transformers/foc-sections.js';
+import focMetadataTransformer from './transformers/foc-metadata.js';
 
 // PARSER REGISTRY
 const parsers = {
@@ -80,6 +81,7 @@ const PAGE_TEMPLATE = {
 const transformers = [
   focCleanupTransformer,
   ...(PAGE_TEMPLATE.sections && PAGE_TEMPLATE.sections.length > 1 ? [focSectionsTransformer] : []),
+  focMetadataTransformer,
 ];
 
 /**
@@ -150,6 +152,47 @@ export default {
     const hr = document.createElement('hr');
     main.appendChild(hr);
     WebImporter.rules.createMetadata(main, document);
+
+    // 5b. Enrich metadata block with custom fields
+    // createMetadata generates a <table> element with th "Metadata"
+    let metaTable = null;
+    main.querySelectorAll('table').forEach((t) => {
+      const th = t.querySelector('th');
+      if (th && th.textContent.trim().toLowerCase() === 'metadata') metaTable = t;
+    });
+    if (metaTable) {
+      const addMetaRow = (key, value) => {
+        if (!value) return;
+        const tr = document.createElement('tr');
+        const td1 = document.createElement('td');
+        td1.textContent = key;
+        const td2 = document.createElement('td');
+        td2.textContent = value;
+        tr.append(td1, td2);
+        metaTable.append(tr);
+      };
+
+      // Author from article:author or og meta or sidebar author link
+      let authorName = null;
+      const authorMeta = document.querySelector('meta[name="author"], meta[property="article:author"]');
+      if (authorMeta) authorName = authorMeta.content;
+      if (!authorName) {
+        const authorEl = main.querySelector('.post-single-author-name a, .post-single-author a');
+        if (authorEl) authorName = authorEl.textContent.trim();
+      }
+      addMetaRow('Author', authorName);
+
+      // Publication Date
+      const pubMeta = document.querySelector('meta[property="article:published_time"]');
+      if (pubMeta) addMetaRow('Publication Date', pubMeta.content.split('T')[0]);
+
+      // Reading time from word count
+      const articleBody = main.querySelector('.post-single-content') || main;
+      const wordCount = articleBody.textContent.trim().split(/\s+/).filter(Boolean).length;
+      const minutes = Math.ceil(wordCount / 200);
+      addMetaRow('Reading Time', `${minutes} min`);
+    }
+
     WebImporter.rules.transformBackgroundImages(main, document);
     WebImporter.rules.adjustImageUrls(main, url, params.originalURL);
 

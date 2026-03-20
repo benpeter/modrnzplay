@@ -69,6 +69,33 @@
           ]
         }
       ]
+    },
+    {
+      "name": "author-profile",
+      "urls": [
+        "https://www.the-future-of-commerce.com/contributor/grant-smith/"
+      ],
+      "description": "Author/contributor profile page with bio, avatar, social links, and article list",
+      "blocks": [
+        {
+          "name": "author-bio",
+          "instances": [
+            ".contributor-col-left"
+          ]
+        }
+      ],
+      "sections": [
+        {
+          "id": "section-profile",
+          "name": "Author Profile",
+          "selector": "main .container",
+          "style": "dark",
+          "blocks": [
+            "author-bio"
+          ],
+          "defaultContent": []
+        }
+      ]
     }
   ]
 }

@@ -1,25 +1,8 @@
 var CustomImportScript = (() => {
   var __defProp = Object.defineProperty;
-  var __defProps = Object.defineProperties;
   var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-  var __getOwnPropDescs = Object.getOwnPropertyDescriptors;
   var __getOwnPropNames = Object.getOwnPropertyNames;
-  var __getOwnPropSymbols = Object.getOwnPropertySymbols;
   var __hasOwnProp = Object.prototype.hasOwnProperty;
-  var __propIsEnum = Object.prototype.propertyIsEnumerable;
-  var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-  var __spreadValues = (a, b) => {
-    for (var prop in b || (b = {}))
-      if (__hasOwnProp.call(b, prop))
-        __defNormalProp(a, prop, b[prop]);
-    if (__getOwnPropSymbols)
-      for (var prop of __getOwnPropSymbols(b)) {
-        if (__propIsEnum.call(b, prop))
-          __defNormalProp(a, prop, b[prop]);
-      }
-    return a;
-  };
-  var __spreadProps = (a, b) => __defProps(a, __getOwnPropDescs(b));
   var __export = (target, all) => {
     for (var name in all)
       __defProp(target, name, { get: all[name], enumerable: true });
@@ -187,10 +170,9 @@ var CustomImportScript = (() => {
   // tools/importer/transformers/foc-sections.js
   var H2 = { before: "beforeTransform", after: "afterTransform" };
   function transform2(hookName, element, payload) {
-    var _a;
     if (hookName === H2.after) {
       const { document } = payload;
-      const sections = (_a = payload.template) == null ? void 0 : _a.sections;
+      const sections = payload.template?.sections;
       if (!sections || sections.length < 2) return;
       for (let i = sections.length - 1; i >= 0; i--) {
         const section = sections[i];
@@ -213,6 +195,69 @@ var CustomImportScript = (() => {
           sectionEl.before(hr);
         }
       }
+    }
+  }
+
+  // tools/importer/transformers/foc-metadata.js
+  var H3 = { before: "beforeTransform", after: "afterTransform" };
+  function transform3(hookName, element, payload) {
+    if (hookName !== H3.after) return;
+    const { document } = payload;
+    const head = document.head || document.querySelector("head");
+    if (!head) return;
+    function addMeta(name, content) {
+      if (!content) return;
+      const meta = document.createElement("meta");
+      meta.setAttribute("name", name);
+      meta.setAttribute("content", content);
+      head.appendChild(meta);
+    }
+    let authorName = null;
+    const jsonLd = document.querySelector('script[type="application/ld+json"]');
+    if (jsonLd) {
+      try {
+        const data = JSON.parse(jsonLd.textContent);
+        if (data.author && data.author.name) {
+          authorName = data.author.name;
+        }
+      } catch (e) {
+      }
+    }
+    if (!authorName) {
+      const authorEl = element.querySelector(".post-single-author-name a, aside .post-single-author a, address a");
+      if (authorEl) authorName = authorEl.textContent.trim();
+    }
+    addMeta("Author", authorName);
+    let publishDate = null;
+    const pubMeta = document.querySelector('meta[property="article:published_time"]');
+    if (pubMeta) {
+      publishDate = pubMeta.content.split("T")[0];
+    }
+    if (!publishDate && jsonLd) {
+      try {
+        const data = JSON.parse(jsonLd.textContent);
+        if (data.datePublished) publishDate = data.datePublished;
+      } catch (e) {
+      }
+    }
+    addMeta("Publication Date", publishDate);
+    let tags = null;
+    if (jsonLd) {
+      try {
+        const data = JSON.parse(jsonLd.textContent);
+        if (data.keywords && Array.isArray(data.keywords)) {
+          tags = data.keywords.join(", ");
+        }
+      } catch (e) {
+      }
+    }
+    addMeta("Tags", tags);
+    const articleBody = element.querySelector(".post-single-content, main article, .entry-content");
+    if (articleBody) {
+      const text = articleBody.textContent.trim();
+      const wordCount = text.split(/\s+/).filter(Boolean).length;
+      const minutes = Math.ceil(wordCount / 200);
+      addMeta("Reading Time", `${minutes} min`);
     }
   }
 
@@ -279,12 +324,14 @@ var CustomImportScript = (() => {
   };
   var transformers = [
     transform,
-    ...PAGE_TEMPLATE.sections && PAGE_TEMPLATE.sections.length > 1 ? [transform2] : []
+    ...PAGE_TEMPLATE.sections && PAGE_TEMPLATE.sections.length > 1 ? [transform2] : [],
+    transform3
   ];
   function executeTransformers(hookName, element, payload) {
-    const enhancedPayload = __spreadProps(__spreadValues({}, payload), {
+    const enhancedPayload = {
+      ...payload,
       template: PAGE_TEMPLATE
-    });
+    };
     transformers.forEach((transformerFn) => {
       try {
         transformerFn.call(null, hookName, element, enhancedPayload);
@@ -330,6 +377,37 @@ var CustomImportScript = (() => {
       const hr = document.createElement("hr");
       main.appendChild(hr);
       WebImporter.rules.createMetadata(main, document);
+      let metaTable = null;
+      main.querySelectorAll("table").forEach((t) => {
+        const th = t.querySelector("th");
+        if (th && th.textContent.trim().toLowerCase() === "metadata") metaTable = t;
+      });
+      if (metaTable) {
+        const addMetaRow = (key, value) => {
+          if (!value) return;
+          const tr = document.createElement("tr");
+          const td1 = document.createElement("td");
+          td1.textContent = key;
+          const td2 = document.createElement("td");
+          td2.textContent = value;
+          tr.append(td1, td2);
+          metaTable.append(tr);
+        };
+        let authorName = null;
+        const authorMeta = document.querySelector('meta[name="author"], meta[property="article:author"]');
+        if (authorMeta) authorName = authorMeta.content;
+        if (!authorName) {
+          const authorEl = main.querySelector(".post-single-author-name a, .post-single-author a");
+          if (authorEl) authorName = authorEl.textContent.trim();
+        }
+        addMetaRow("Author", authorName);
+        const pubMeta = document.querySelector('meta[property="article:published_time"]');
+        if (pubMeta) addMetaRow("Publication Date", pubMeta.content.split("T")[0]);
+        const articleBody = main.querySelector(".post-single-content") || main;
+        const wordCount = articleBody.textContent.trim().split(/\s+/).filter(Boolean).length;
+        const minutes = Math.ceil(wordCount / 200);
+        addMetaRow("Reading Time", `${minutes} min`);
+      }
       WebImporter.rules.transformBackgroundImages(main, document);
       WebImporter.rules.adjustImageUrls(main, url, params.originalURL);
       const path = WebImporter.FileUtils.sanitizePath(

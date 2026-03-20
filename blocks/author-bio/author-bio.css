@@ -1,0 +1,86 @@
+/* author bio — profile card for contributor pages */
+.author-bio {
+  padding: var(--spacing-xl) 0;
+}
+
+.author-bio .author-bio-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-l);
+}
+
+.author-bio .author-bio-header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-l);
+  align-items: center;
+}
+
+.author-bio .author-bio-avatar img {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+}
+
+.author-bio .author-bio-info h2 {
+  margin: 0 0 var(--spacing-xs);
+  font-size: var(--heading-font-size-xl);
+  font-weight: 700;
+}
+
+.author-bio .author-bio-info p {
+  margin: 0 0 var(--spacing-xxs);
+  font-size: var(--body-font-size-m);
+  opacity: 0.85;
+}
+
+.author-bio .author-bio-text {
+  max-width: 640px;
+}
+
+.author-bio .author-bio-text p {
+  margin: 0 0 var(--spacing-m);
+  line-height: 1.6;
+}
+
+.author-bio .author-bio-social {
+  display: flex;
+  gap: var(--spacing-s);
+}
+
+.author-bio .author-bio-social-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: 8px 16px;
+  border: 1px solid currentcolor;
+  border-radius: var(--radius-m);
+  font-size: var(--body-font-size-xs);
+  text-decoration: none;
+  transition: background-color var(--transition-fast);
+}
+
+.author-bio .author-bio-social-link:hover {
+  background-color: rgb(255 255 255 / 10%);
+  text-decoration: none;
+}
+
+/* dark section overrides */
+.section.dark .author-bio .author-bio-social-link {
+  color: #fff;
+  border-color: rgb(255 255 255 / 40%);
+}
+
+@media (width >= 600px) {
+  .author-bio .author-bio-header {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+
+  .author-bio .author-bio-avatar img {
+    width: 150px;
+    height: 150px;
+  }
+}
